@@ -161,8 +161,8 @@
   (reset! dash-query-pending? false)
   (log/debug ">>>>> GOT RESULTS" data)
   (data/swap-app-state! :app/data-dash assoc
-                        :items (get-in data [:body :items])
-                        :paging (get-in data [:body :paging])))
+                        :items (get data :items)
+                        :paging (get data :paging)))
 
 
 (defmethod on-query-response
@@ -184,7 +184,7 @@
   [id]
   (when-not @dash-query-pending?
     (reset! dash-query-pending? true)
-    (data/query {:datastore/metadata-with-activities [[[:kixi.datastore.metadatastore/meta-read 
+    (data/query {:datastore/metadata-with-activities [[[:kixi.datastore.metadatastore/meta-read
                                                         :kixi.datastore.metadatastore/file-read]]
                                                       (:full query-fields)]}
                 on-query-response)))
@@ -206,8 +206,9 @@
   [{:keys [args]}]
   (data/swap-app-state! :app/datastore assoc :ds/pending? true)
   (let [rts-id (get-in args [:route/params :id])]
-    (data/query `{[:datastore/metadata-by-id ~rts-id] ~(:full query-fields)}
-                  on-query-response)
+    (data/query {:datastore/metadata-by-id [[rts-id]
+                                            (:full query-fields)]}
+                on-query-response)
     (select-current! rts-id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
