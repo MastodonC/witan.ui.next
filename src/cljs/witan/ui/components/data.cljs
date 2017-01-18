@@ -12,7 +12,10 @@
 (defn view
   []
   (let [id (data/get-in-app-state :app/datastore :ds/current)
-        md (data/get-in-app-state :app/datastore :ds/file-metadata id)]
-    [:div
-     [:span name]
-     [:span (pr-str md)]]))
+        md (data/get-in-app-state :app/datastore :ds/file-metadata id)]                           
+    (if-not md
+      [:div.loading
+       (icons/loading :large)]
+      [:div
+       [:span name]
+       [:span (pr-str md)]])))
