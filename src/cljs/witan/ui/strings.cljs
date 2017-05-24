@@ -19,6 +19,7 @@
    :string/back                             "Back"
    :string/please-wait                      "Please Wait..."
    :string/error                            "Error"
+   :string/edit                             "Edit"
    :string/choose-file                      "Choose Dataset"
    :string/optional                         "(optional)"
    :string/forecast-name                    "Name"

@@ -66,6 +66,8 @@
 ;; fonts
 (def title-fonts-colour lol-color-4)
 (def icon-colour lol-color-4)
+(def clickable lol-color-7)
+(def clickable-hovered (color/lighten lol-color-7 20))
 
 ;; side
 (def side-bg lol-color-4)
@@ -126,3 +128,6 @@
 ;; progress bar
 (def progress-bar-border (color/lighten lol-color-4 20))
 (def progress-bar-fill lol-color-4)
+
+;; editing
+(def editing-bg body-bg)

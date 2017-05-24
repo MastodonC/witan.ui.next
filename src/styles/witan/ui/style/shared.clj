@@ -227,4 +227,10 @@
               :border [[(px 10) 'solid colour/progress-bar-fill]]
               :margin-left (px -5)
               :margin-top (px -5)
-              :height (percent 100)}]])
+              :height (percent 100)}]
+
+            [:.clickable-text
+             {:color colour/clickable
+              :cursor :pointer}
+             [:&:hover
+              {:color colour/clickable-hovered}]]])

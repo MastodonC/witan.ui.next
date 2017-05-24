@@ -116,4 +116,46 @@
              [:.sharing-controls
               [:.sharing-activity
                [:.selected-groups
-                {:margin [[(em 0.5) (em 0)]]}]]]]])
+                {:margin [[(em 0.5) (em 0)]]}]]]]
+
+            [:.file-title
+             {:margin [[(em 0.0) (em 0.2)]]
+              :height (px 30)
+              ;;:display :inline
+              :white-space :nowrap
+              :overflow :hidden
+              :text-overflow :ellipsis}]
+            [:.file-title-input
+             {:margin [[(em 0.0) (em 0.2)]]
+              :height (px 30)
+              :width (percent 100)
+              :font-family fonts/title-fonts
+              :color colour/title-fonts-colour
+              :font-size (em 1.5)
+              :display :inline-block
+              :padding (px 0)
+              :border (px 0)
+              :background-color colour/editing-bg}
+             ^:prefix {:box-sizing :content-box}
+             [:&:focus
+              {:outline :none}]]
+
+            [:.editable-field
+             {:padding [[(em 0.2) (em 0.4)]]
+              :line-height (em 1.7)
+              :border [[(px 1) 'solid 'transparent]]}
+             [:&:hover
+              {:border [[(px 1) 'dashed colour/gutter]]}]
+             [:span
+              {:font-size (px 12)
+               :height (em 0.75)
+               :line-height (em 0.75)}]
+
+             [:.editable-field-content
+              {:display :flex
+               :justify-content :space-between
+               :vertical-align :bottom
+               :align-items :flex-end}]]
+            [:.editable-field-editing
+             {:border [[(px 1) 'dashed colour/gutter]]
+              :background-color colour/editing-bg}]])
