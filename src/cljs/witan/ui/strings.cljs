@@ -174,7 +174,13 @@
    :string/reset-code                       "Reset Code"
    :string/reset-password-completion        "Your password was changed. Press 'Back' to log in to your account."
    :string/file-upload-unknown-error        "An unknown error occurred whilst uploading your file. Please contact support."
-   :string/file-upload-metadata-invalid     "The name and/or description field provided was rejected by the system. Please ensure that only standard characters are used (A-Z, a-z, 0-9, spaces, tabs, punctuation). If the problem persists, please contact support."} )
+   :string/file-upload-metadata-invalid     "The name and/or description field provided was rejected by the system. Please ensure that only standard characters are used (A-Z, a-z, 0-9, spaces, tabs, punctuation). If the problem persists, please contact support."
+   :string/license                          "License"
+   :string/smallest-geography               "Smallest Geography"
+   :string/temporal-coverage                "Temporal Coverage"
+   :string/tags                             "Tags"
+   :string/sharing-summary                  "This file is currently visible to %d other users or organisations."
+   :string/sharing-summary-single           "This file is currently visible to just 1 other user or organisation."} )
 
 
 (defn resolve-string

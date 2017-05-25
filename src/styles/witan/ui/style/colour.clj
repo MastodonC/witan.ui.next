@@ -42,6 +42,9 @@
 (def lol-color-6 "#F3A86C")
 (def lol-color-7 "#429491")
 
+(def subtle-grey "#dfe3e9")
+(def subtle-grey2 (color/darken subtle-grey 10))
+(def subtle-grey3 (color/darken subtle-grey 20))
 ;;
 (def error   color-complement-0)
 (def warning color-secondary-2-0)
@@ -131,3 +134,7 @@
 
 ;; editing
 (def editing-bg body-bg)
+
+;; tags
+(def tag-bg lol-color-3)
+(def tag-border (color/darken lol-color-3 20))
