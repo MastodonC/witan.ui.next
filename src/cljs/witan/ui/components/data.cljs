@@ -116,7 +116,7 @@
         (row :string/file-provenance-source (fn [] [:span prov-source]))
         (row :string/license (fn [] [:span lc-type]))
         (row :string/smallest-geography (fn [] [:span geo-level]))
-        (row :string/temporal-coverage (fn [] [:span (time/iso-time-as-moment tc-from) " - " (time/iso-time-as-moment tc-to)]))]]]]))
+        (row :string/temporal-coverage (fn [] [:span (when tc-from (time/iso-time-as-moment tc-from)) " - " (when tc-to (time/iso-time-as-moment tc-to))]))]]]]))
 
 (defn tags
   [{:keys [kixi.datastore.metadatastore/tags]} on-edit-fn]
@@ -171,7 +171,7 @@
               #_sharing-groups #_(set (reduce concat [] (vals sharing)))]
           [:div#data-view
            (shared/header-string (:kixi.datastore.metadatastore/name md))
-           (shared/tabs {:tabs {:overview "Overview" :sharing "Sharing" :edit "Edit"}
+           (shared/tabs {:tabs {:overview "Overview"}
                          :selected-tab :overview})
            [:div.flex-center
             [:div.container.padded-content
@@ -239,7 +239,7 @@
                                                       :icon icons/download
                                                       :txt :string/file-actions-download-file
                                                       :class "file-action-download"}
-                                                     #())]]]])))))
+                    #())]]]])))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
