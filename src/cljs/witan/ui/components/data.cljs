@@ -109,12 +109,16 @@
        [:tbody
         (row :string/file-type (fn [] [:span file-type]))
         (row :string/file-uploader (fn [] [:span (:kixi.user/name prov-created-by)]))
+        (row :string/author (fn [] [:span author]))
+        (row :string/source (fn [] [:span source]))        
+        (row :string/maintainer (fn [] [:span maintainer]))        
         (row :string/created-at (fn [] [:span (time/iso-time-as-moment prov-created-at)]))
         (row :string/file-size (fn [] [:span (js/filesize size-bytes)]))]]
       [:table.pure-table.pure-table-bordered.pure-table-odd
        [:tbody
         (row :string/file-provenance-source (fn [] [:span prov-source]))
-        (row :string/license (fn [] [:span lc-type]))
+        (row :string/license-type (fn [] [:span lc-type]))
+        (row :string/license-usage (fn [] [:span lc-usage]))
         (row :string/smallest-geography (fn [] [:span geo-level]))
         (row :string/temporal-coverage (fn [] [:span (when tc-from (time/iso-time-as-moment tc-from)) " - " (when tc-to (time/iso-time-as-moment tc-to))]))]]]]))
 
