@@ -594,6 +594,26 @@
 (def user-has-download?
   (partial user-has-permission? :kixi.datastore.metadatastore/file-read))
 
+(defn md->tab-config
+  [md has-edit?]
+  (cond
+    (= "stored" (:kixi.datastore.metadatastore/type md))
+    (if has-edit?
+      {:overview (get-string :string/overview)
+       :sharing (get-string :string/sharing)
+       :edit (get-string :string/edit)}
+      {:overview (get-string :string/overview)
+       :sharing (get-string :string/sharing)})
+    (= "datapack" (:kixi.datastore.metadatastore/bundle-type md))
+    (if has-edit?
+      {:overview (get-string :string/overview)
+       :files (get-string :string/files)
+       :sharing (get-string :string/sharing)
+       :edit (get-string :string/edit)}
+      {:overview (get-string :string/overview)
+       :sharing (get-string :string/sharing)})
+    :else {}))
+
 ;;
 
 
@@ -627,12 +647,7 @@
              (icons/loading :large)]
             [:div#data-view
              (shared/header-string (:kixi.datastore.metadatastore/name md))
-             (shared/tabs {:tabs (if has-edit?
-                                   {:overview (get-string :string/overview)
-                                    :sharing (get-string :string/sharing)
-                                    :edit (get-string :string/edit)}
-                                   {:overview (get-string :string/overview)
-                                    :sharing (get-string :string/sharing)})
+             (shared/tabs {:tabs (md->tab-config md has-edit?)
                            :selected-tab @subview-tab
                            :on-click switch-primary-view!})
              [:div.flex-center
@@ -657,8 +672,8 @@
                   (title md go-to-edit)
                   (description md go-to-edit)
                   (metadata md go-to-edit)
-                  (tags md go-to-edit)
                   (sharing md go-to-sharing)
+                  (tags md go-to-edit)
                   (when can-download? (actions current))])]]]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
