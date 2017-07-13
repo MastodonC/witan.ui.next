@@ -60,7 +60,9 @@
                                     :title (get-string :string/file-uploader)
                                     :weight 0.2}
                                    {:content-fn modified-fn
-                                    :title (get-string :string/created-at)
+                                    :title (get-string (if (= file-type-filter :datapacks)
+                                                         :string/created-at
+                                                         :string/file-uploaded-at))
                                     :weight 0.2}
                                    {:content-fn actions-fn
                                     :title ""
