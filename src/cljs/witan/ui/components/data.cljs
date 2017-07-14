@@ -115,7 +115,12 @@
                     :string/edit-to-add-description
                     :string/no-description))])])
 
-(defn metadata
+(defmulti metadata
+  (fn [md _]
+    ((juxt :kixi.datastore.metadatastore/type :kixi.datastore.metadatastore/bundle-type) md)))
+
+(defmethod metadata
+  ["stored" nil]
   [{:keys [kixi.datastore.metadatastore/provenance
            kixi.datastore.metadatastore/file-type
            kixi.datastore.metadatastore/size-bytes
@@ -169,6 +174,31 @@
                      (row :string/file-source (fn [] [:span source]))
                      (row :string/source-updated-at (fn [] [:span (when source-updated (time/iso-date-as-slash-date source-updated))]))))]]]]))
 
+(defmethod metadata
+  ["bundle" "datapack"]
+  [{:keys [kixi.datastore.metadatastore/bundled-ids
+           kixi.datastore.metadatastore/provenance]} on-edit-fn]
+  (let [prov-source     (:kixi.datastore.metadatastore/source provenance)
+        prov-created-at (:kixi.datastore.metadatastore/created provenance)
+        prov-created-by (:kixi/user provenance)
+        row             (fn [string-id value-fn]
+                          [[:td.row-title [:strong (get-string string-id)]] [:td.row-value (value-fn)]])]
+    [editable-field
+     on-edit-fn
+     [:div.file-metadata-table
+      [:table.pure-table.pure-table-bordered.pure-table-odd
+       [:tbody
+        (vec (concat [:tr]
+                     (row :string/file-uploader
+                          (fn [] [:span (:kixi.user/name prov-created-by)]))
+                     (row :string/datapack-view-num-files
+                          (fn [] [:span (count bundled-ids)]))))
+        (vec (concat [:tr]
+                     (row :string/file-uploaded-at
+                          (fn [] [:span (time/iso-time-as-moment prov-created-at)]))
+                     (row :string/datapack-view-total-sized
+                          (fn [] [:span (js/filesize 0)]))))]]]]))
+
 (defn tags
   [{:keys [kixi.datastore.metadatastore/tags]} on-edit-fn]
   [editable-field
@@ -179,6 +209,36 @@
       [:i (get-string :string/no-tags)]
       (for [tag tags]
         (shared/tag tag identity)))]])
+
+(defn files
+  [{:keys [kixi.datastore.metadatastore/bundled-ids]} on-edit-fn]
+  [editable-field
+   on-edit-fn
+   [:div.datapack-files
+    [:h3 (get-string :string/files)]
+    [shared/table
+     {:headers [{:content-fn
+                 #(vector
+                   :div.flex-start
+                   (shared/button {:icon icons/delete
+                                   :id (str (:kixi.datastore.metadatastore/id %) "-delete")
+                                   :prevent? true}
+                                  (fn [_]))
+                   (shared/button {:icon icons/search
+                                   :id (str (:kixi.datastore.metadatastore/id %) "-open")
+                                   :prevent? true}
+                                  (fn [_]
+                                    (.open
+                                     js/window
+                                     (str "/#" (route/find-path :app/data {:id (:kixi.datastore.metadatastore/id %)}))))))
+                 :title ""  :weight "90px"}
+                {:content-fn #(shared/inline-file-title % :small :small)
+                 :title (get-string :string/file-name)
+                 :weight 0.43}
+                {:content-fn #(vector :div "hello")
+                 :title (get-string :string/visible-to)
+                 :weight 0.43}]
+      :content []}]]])
 
 (defn sharing
   [{:keys [kixi.datastore.metadatastore/sharing]} on-edit-fn]
@@ -566,7 +626,8 @@
 (def tabs
   [[0 :overview]
    [1 :sharing]
-   [2 :edit]])
+   [2 :edit]
+   [4 :files]])
 
 (defn idx->tab
   [i]
@@ -628,12 +689,16 @@
             md (data/get-in-app-state :app/datastore :ds/file-metadata current)
             has-edit? (user-has-edit? (data/get-in-app-state :app/user) md)
             can-download? (user-has-download? (data/get-in-app-state :app/user) md)
+            is-bundle? (= "bundle" (:kixi.datastore.metadatastore/type md))
             remove-new-fn (fn []
                             (route/swap-query-string! (fn [x] (dissoc x :new)))
                             (reset! new? false))
             go-to-edit (when has-edit? (fn []
                                          (remove-new-fn)
                                          (switch-primary-view! :edit)))
+            go-to-files (when has-edit? (fn []
+                                          (remove-new-fn)
+                                          (switch-primary-view! :files)))
             go-to-sharing (when has-edit? (fn []
                                             (remove-new-fn)
                                             (switch-primary-view! :sharing)))]
@@ -674,6 +739,7 @@
                   (metadata md go-to-edit)
                   (sharing md go-to-sharing)
                   (tags md go-to-edit)
+                  (when is-bundle? (files md go-to-files))
                   (when can-download? (actions current))])]]]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -256,6 +256,8 @@
    :string/visible-to                       "Visible to"
    :string/dash-filter--files               "Showing only your files"
    :string/dash-filter--datapacks           "Showing only your datapacks"
+   :string/datapack-view-num-files          "No. of files"
+   :string/datapack-view-total-sized        "Total size"
    ;;
    :string.activity.upload-file/failed          "You failed to upload the file '%s'"
    :string.activity.upload-file/completed       "You successfully uploaded the file '%s'"
