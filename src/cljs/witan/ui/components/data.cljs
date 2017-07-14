@@ -251,8 +251,12 @@
      on-edit-fn
      [:div.file-sharing
       [:h3 (get-string :string/sharing)]
-      [:span (if (= 1 unique-count)
+      [:span (cond
+               (zero? unique-count)
+               (get-string :string/sharing-summary-only-you)
+               (= 1 unique-count)
                (get-string :string/sharing-summary-single)
+               :else
                (gstring/format (get-string :string/sharing-summary) unique-count))]]]))
 
 (defn actions
