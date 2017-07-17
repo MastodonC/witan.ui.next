@@ -146,7 +146,8 @@
                 :line-height (em 1.6)}]]
 
              [:.datapack-files
-              {:width (percent 100)}
+              {:width (percent 100)
+               :margin-bottom (em 1.5)}
               [:table
                {:width (percent 100)}]]
 
