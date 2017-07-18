@@ -646,13 +646,15 @@
         [:div.file-edit-metadata-content-container
          (edit-title-description local-md update-errors)
          (edit-tags local-md update-errors)
-         (edit-license local-md show-license-usage licenses update-errors)
-         [:div.file-edit-metadata-container.flex
-          {:style {:align-items :stretch}}
-          [:div.flex-2
-           [edit-source local-md update-errors]]
-          [:div.flex-2
-           [edit-temporal-coverage-and-geography local-md update-errors]]]
+         (when (= "stored" (:kixi.datastore.metadatastore/type md))
+           [:div
+            (edit-license local-md show-license-usage licenses update-errors)
+            [:div.file-edit-metadata-container.flex
+             {:style {:align-items :stretch}}
+             [:div.flex-2
+              [edit-source local-md update-errors]]
+             [:div.flex-2
+              [edit-temporal-coverage-and-geography local-md update-errors]]]])
          (edit-actions local-md flags update-errors)]))))
 
 (def tabs
