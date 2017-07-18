@@ -232,7 +232,8 @@
   (let [invisible-files (filter :error (vals bundled-files))
         visible-files (remove :error (vals bundled-files))]
     [editable-field
-     on-edit-fn
+     ;;on-edit-fn
+     nil
      [:div.datapack-files
       [:h3 (get-string :string/files)]
       (when-not (empty? visible-files)
