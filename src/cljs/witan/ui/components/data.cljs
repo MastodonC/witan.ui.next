@@ -248,13 +248,10 @@
                                                                                                :kixi.datastore.metadatastore/file-read])))
                                                            (set (data/get-in-app-state :app/user :kixi.user/groups))))}
                                       (download-file (:kixi.datastore.metadatastore/id %)))
-                       (shared/button {:icon icons/search
-                                       :id (str (:kixi.datastore.metadatastore/id %) "-open")
-                                       :prevent? true}
-                                      (fn [_]
-                                        (.open
-                                         js/window
-                                         (str "/#" (route/find-path :app/data {:id (:kixi.datastore.metadatastore/id %)}))))))
+                       [:a {:href (str "/#" (route/find-path :app/data {:id (:kixi.datastore.metadatastore/id %)}))}
+                        (shared/button {:icon icons/search
+                                        :id (str (:kixi.datastore.metadatastore/id %) "-open")}
+                                       (fn [_]))])
                      :title "Actions"  :weight "105px"}
                     {:content-fn #(shared/inline-file-title % :small :small)
                      :title (get-string :string/file-name)
