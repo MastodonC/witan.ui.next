@@ -152,7 +152,6 @@
   (let [activities (data/get-in-app-state :app/activities :activities/pending)]
     (loop [activities' activities]
       (let [[command-id {:keys [activity state]}] (first activities')]
-        (log/debug "Checking for COMMAND ID" command-id)
         (if (= command-id (or (:kixi.comms.command/id args)
                               (:kixi.command/id args)))
           (try
