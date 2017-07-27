@@ -110,7 +110,7 @@
                                        (.open
                                         js/window
                                         (str "/#" (route/find-path :app/data {:id (:kixi.datastore.metadatastore/id %)}))))))
-                    :title "foo"  :weight "90px"}
+                    :title ""  :weight "90px"}
                    {:content-fn #(shared/inline-file-title % :small :small)
                     :title (get-string :string/file-name)
                     :weight 0.43}
