@@ -278,14 +278,12 @@
           {:style {:height (if @show-breakout? "300px" "0px")}}
           (table {:headers [{:content-fn #(button {:icon icons/tick
                                                    :id (:kixi.group/id %)
-                                                   :prevent? true}
-                                                  (fn [_] (select-fn true %)))
+                                                   :prevent? true} identity)
                              :title ""  :weight 0.12}
                             {:content-fn inline-group  :title "Name"          :weight 0.88}]
                   :content results
                   :selected?-fn #(= (:kixi.group/id %) (:kixi.group/id @selected-group))
-                  :on-select (partial select-fn true)
-                  :on-double-click (partial select-fn true)})
+                  :on-select (partial select-fn true)})
           [:div.close
            {:on-click close-fn}
            (icons/close)]]]))))

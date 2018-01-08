@@ -154,7 +154,7 @@
                {:margin [[(em 0.0) (em 0.2)]]
                 :line-height (em 1.6)}]]
 
-             [:.datapack-files :.datapack-edit-files
+             [:.datapack-files :.datapack-edit-files :.datapack-basic-collect
               {:width (percent 100)}
               [:table:last-child
                {:width (percent 100)

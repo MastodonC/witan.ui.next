@@ -828,11 +828,24 @@
           (when-not (empty? invisible-files)
             [:div.invisible-files (gstring/format (get-string :string/datapack-view-invisible-file-count) (count invisible-files))])]]))))
 
+(defn basic-collect
+  [md]
+  (let []
+    (fn [md]
+      [editable-field
+       nil
+       [:div.datapack-basic-collect
+        [:h2.heading (get-string :string/collect)]
+        [shared/group-search-area
+         :string/data-upload-search-groups
+         #(log/debug "HUH" %2)]]])))
+
 (def tabs
   [[0 :overview]
    [1 :sharing]
    [2 :edit]
-   [3 :files]])
+   [3 :files]
+   [4 :collect]])
 
 (defn idx->tab
   [i]
@@ -862,6 +875,7 @@
     (if has-edit?
       {:overview (get-string :string/overview)
        :files (get-string :string/files)
+       :collect (get-string :string/collect)
        :sharing (get-string :string/sharing)
        :edit (get-string :string/edit)}
       {:overview (get-string :string/overview)
@@ -942,6 +956,7 @@
                  :sharing (sharing-detailed md has-edit?)
                  :edit [edit-metadata current md]
                  :files [edit-files md]
+                 :collect [basic-collect md]
                  ;; :overview & default
                  [:div
                   (header-container md go-to-edit)

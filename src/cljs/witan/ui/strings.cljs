@@ -291,6 +291,7 @@
    :string/invalid-url                      "Invalid URL"
    :string/supports                         "Supports"
    :string/dash-reanable-paging             "To enable paging, please return to the unfiltered dashboard"
+   :string/collect                          "Collect"
    ;;
    :string.about/contact-us-1                "If you need Witan support, please either use our live help system or email us at"
    :string.about/contact-us-2                "For all other enquiries, please email us at"
