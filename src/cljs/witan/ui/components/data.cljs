@@ -415,7 +415,7 @@
                     :value name
                     :placeholder nil
                     :on-change #(controller/raise! :data/swap-edit-metadata [:assoc [:kixi.datastore.metadatastore/name] (.. % -target -value)])}]
-           [:div.flex
+           [:div.flex-vcenter
             [:h3 (get-string :string/file-description)]
             [:small (get-string :string/supports " ") [:a {:href "http://commonmark.org/help/"
                                                            :target "_blank"} "Markdown"]]]
@@ -830,15 +830,57 @@
 
 (defn basic-collect
   [md]
-  (let []
+  (let [groups (r/atom #{})
+        message (r/atom nil)
+        sending? (r/atom false)]
     (fn [md]
       [editable-field
        nil
        [:div.datapack-basic-collect
         [:h2.heading (get-string :string/collect)]
-        [shared/group-search-area
-         :string/data-upload-search-groups
-         #(log/debug "HUH" %2)]]])))
+        (shared/info-panel :string/collect-info)
+        [:hr]
+        [:div
+         [shared/group-search-area
+          :string/create-rts-user-ph
+          #(swap! groups conj %1) {:disabled? @sending?}]
+         (when (not-empty @groups)
+           (input-wrapper
+            [shared/table
+             {:headers [{:content-fn
+                         #(vector
+                           :div.flex-start
+                           (shared/button {:icon icons/delete
+                                           :disabled? @sending?
+                                           :id (str (:kixi.group/id %) "-remove")}
+                                          (fn [_]
+                                            (swap! groups disj %))))
+                         :title ""  :weight 0.1}
+                        {:content-fn shared/inline-group
+                         :title (get-string :string/name)
+                         :title-align :left
+                         :weight 0.9}]
+              :content @groups}]
+            [:div.flex-vcenter
+             [:h3 (get-string :string/message)]
+             [:small (get-string :string/supports " ") [:a {:href "http://commonmark.org/help/"
+                                                            :target "_blank"} "Markdown"]]]
+            [:textarea {:id  "description"
+                        :value @message
+                        :placeholder (get-string :string/collect-message-ph)
+                        :disabled (when @sending? :disabled)
+                        :on-change #(reset! message (.. % -target -value))}]
+            [:div.flex-vcenter-start
+             (shared/button {:id :send-cas-request
+                             :_id :send-cas-request
+                             :txt :string/collect-send-request
+                             :prevent? true
+                             :disabled? @sending?}
+                            (fn [_]
+                              (reset! sending? true)
+                              (controller/raise! :data/send-basic-collect-request {:groups @groups
+                                                                                   :message :message})))
+             (when @sending? [:span (get-string :string/sending "...")])]))]]])))
 
 (def tabs
   [[0 :overview]

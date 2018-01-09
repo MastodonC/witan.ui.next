@@ -238,6 +238,7 @@
    :string/to                               "To"
    :string/save                             "Save"
    :string/saving                           "Saving"
+   :string/sending                          "Sending"
    :string/edit-to-add-description          "Add a description by clicking "
    :string/new-upload-file-information-hero      "Congratulations, your file was uploaded successfully. Please consider adding additional information about this file such as a description, license and tags."
    :string/new-upload-bundle-information-hero      "Congratulations, your datapack was created successfully. Please consider adding additional information about this datapack such as a description and tags."
@@ -292,6 +293,9 @@
    :string/supports                         "Supports"
    :string/dash-reanable-paging             "To enable paging, please return to the unfiltered dashboard"
    :string/collect                          "Collect"
+   :string/collect-info                     "The 'Collect' feature helps you invite other users and groups to submit data to your datapack. Simply select the participants, enter a short message and we will send them an email with all the information they need. They will only be granted permission to upload to your datapack - they will not be able to see the other files in the datapack or the metadata for the datapack."
+   :string/collect-message-ph               "Provide a detailed message to the participants so they understand the kinds of files you'd like them to contribute. Markdown is supported."
+   :string/collect-send-request             "Send Collect request"
    ;;
    :string.about/contact-us-1                "If you need Witan support, please either use our live help system or email us at"
    :string.about/contact-us-2                "For all other enquiries, please email us at"
