@@ -875,7 +875,7 @@
                              :_id :send-cas-request
                              :txt :string/collect-send-request
                              :prevent? true
-                             :disabled? @sending?}
+                             :disabled? (or @sending? (clojure.string/blank? @message))}
                             (fn [_]
                               (reset! sending? true)
                               (controller/raise! :data/send-basic-collect-request {:groups @groups
@@ -891,11 +891,11 @@
 
 (defn idx->tab
   [i]
-  (get (into {} tabs) i))
+  (get (into {} tabs) i :overview))
 
 (defn tab->idx
   [i]
-  (get (zipmap (map second tabs) (map first tabs)) i))
+  (get (zipmap (map second tabs) (map first tabs)) i 0))
 
 (defn switch-primary-view!
   [k]

@@ -230,7 +230,7 @@
   (data/swap-app-state! :app/datastore assoc :ds/pending? true)
   (data/swap-app-state! :app/datastore assoc :ds/confirming-delete? false)
   (data/swap-app-state! :app/datastore assoc :ds/data-view-subview-idx
-                        (utils/query-param-int subview-query-param 0 3))
+                        (utils/query-param-int subview-query-param 0 10))
   (let [id (get-in args [:route/params :id])]
     (send-single-file-item-query! id)
     (reset-properties! id)
