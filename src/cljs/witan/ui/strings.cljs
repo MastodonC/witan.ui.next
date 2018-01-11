@@ -187,6 +187,7 @@
    :string/file-sharing-meta-read           "Read Metadata"
    :string/file-sharing-meta-update         "Edit Metadata"
    :string/file-sharing-file-read           "Download Dataset"
+   :string/datapack-sharing-bundle-add      "Add Files"
    :string/file-actions-download-file       "Download this dataset"
    :string/sharing-matrix-group-name        "Group Name"
    :string/sharing-matrix-group-search-ph   "Search for users and/or groups..."
