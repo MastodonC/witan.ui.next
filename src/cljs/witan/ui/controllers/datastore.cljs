@@ -16,7 +16,7 @@
             [cljsjs.toastr])
   (:require-macros [cljs-log.core :as log]
                    [cljs.core.async.macros :refer [go go-loop]]
-                   [witan.ui.env :as env :refer [cljs-env]]))
+                   [witan.ui.env :as env :refer [cljs-env]])  )
 
 (def dash-page-query-param :page)
 
@@ -158,7 +158,6 @@
                         :paging paging)
   (doseq [{:keys [kixi.datastore.metadatastore/id] :as payload} items]
     (data/swap-app-state! :app/datastore update-in [:ds/file-metadata id] #(merge % payload))))
-
 
 (defmethod on-query-response
   :datastore/metadata-by-id
