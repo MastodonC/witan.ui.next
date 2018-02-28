@@ -129,7 +129,6 @@
                    :ds/page-size s/Num
                    :ds/query-tries s/Num
                    :ds/data-view-subview-idx s/Num
-                   (s/optional-key :ds/files-search-filtered) [s/Any]
                    (s/optional-key :ds/error) s/Keyword}
    :app/create-datapack {:cdp/pending? s/Bool
                          (s/optional-key :cdp/pending-datapack) s/Any

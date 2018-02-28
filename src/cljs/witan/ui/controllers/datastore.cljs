@@ -580,16 +580,6 @@
   (send-dashboard-query!))
 
 (defmethod handle
-  :search-files
-  [event {:keys [search]}]
-  (let [mds (data/get-in-app-state :app/data-dash :items)]
-    (data/swap-app-state! :app/datastore assoc :ds/files-search-filtered
-                          (filter
-                           #(and
-                             (gstring/caseInsensitiveContains (:kixi.datastore.metadatastore/name %) search)
-                             (= "stored" (:kixi.datastore.metadatastore/type %))) mds))))
-
-(defmethod handle
   :create-datapack
   [event {:keys [datapack]}]
   (data/swap-app-state! :app/create-datapack assoc :cdp/pending? true)
