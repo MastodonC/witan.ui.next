@@ -14,10 +14,7 @@
    (when subtitle
      [:span (get-string subtitle)])
    (when on-search
-     [:input {:style {:width "60%"}
-              :on-change on-search
-              ;;              :on-focus on-search
-              }])
+     (shared/search-filter "Search" on-search))
    [:div.dash-buttons
     (for [button buttons]
       (shared/button button on-button-click))]])

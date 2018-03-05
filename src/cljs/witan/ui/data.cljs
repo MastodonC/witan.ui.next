@@ -84,6 +84,33 @@
    :kixi.datastore.metadatastore/bundle-add
    ])
 
+(def metadata-list-fields
+  [:kixi.datastore.metadatastore/name
+   :kixi.datastore.metadatastore/id
+   [:kixi.datastore.metadatastore/provenance
+    :kixi.datastore.metadatastore/created]
+   [:kixi.datastore.metadatastore/provenance
+    :kixi.user/id]
+   :kixi.datastore.metadatastore/type
+   :kixi.datastore.metadatastore/bundle-type
+   :kixi.datastore.metadatastore/file-type
+   :kixi.datastore.metadatastore/license
+   :kixi.datastore.metadatastore/size-bytes
+   :kixi.datastore.metadatastore/sharing])
+
+(def search-dashboard-default
+  {:query {:kixi.datastore.metadatastore.query/name {:match ""}}
+   :size 50
+   :from 0
+   :fields metadata-list-fields
+   :sort-by [{:kixi.datastore.metadatastore/provenance
+              {:kixi.datastore.metadatastore/created :desc}}]})
+
+(def search-file-list-default
+  {:query {:kixi.datastore.metadatastore.query/type {:equals "stored"}}
+   :size 10
+   :fields metadata-list-fields})
+
 ;; default app-state
 (defonce app-state
   (->>
@@ -113,9 +140,9 @@
     :app/request-to-share {:rts/requests {}
                            :rts/current nil
                            :rts/pending? false}
-    :app/search {:ks/dashboard {:ks/current-search ""
+    :app/search {:ks/dashboard {:ks/current-search search-dashboard-default
                                 :ks/search->result {}}
-                 :ks/datapack-files {:ks/current-search ""
+                 :ks/datapack-files {:ks/current-search search-file-list-default
                                      :ks/search->result {}}
                  :ks/datapack-files-expand-in-progress false}
     :app/datastore {:ds/current nil

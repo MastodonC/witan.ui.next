@@ -62,6 +62,16 @@
   ;; TODO: partial metadata schema
   s/Any)
 
+(def Search
+  {(s/optional-key :query) {s/Keyword s/Any}
+   (s/optional-key :size) s/Num
+   (s/optional-key :from) s/Num
+   (s/optional-key :fields) [(s/conditional coll? [s/Keyword]
+                                            :else s/Keyword)]
+   (s/optional-key :sort-by) [(s/conditional map? {s/Keyword (s/conditional map? {s/Keyword s/Keyword}
+                                                                            :else s/Keyword)}
+                                             :else s/Keyword)]})
+
 ;; app state schema
 (def AppStateSchema
   {:app/login {:login/pending? s/Bool
@@ -87,14 +97,14 @@
                    :dd/current-page s/Num
                    s/Keyword s/Any}
 
-   :app/search {:ks/dashboard {:ks/current-search s/Str
-                               :ks/search->result {s/Str {:search-term s/Str
-                                                          :items [ListDisplayItem]
-                                                          :paging {:total s/Num
-                                                                   :count s/Num
-                                                                   :index s/Num}}}}
-                :ks/datapack-files {:ks/current-search (s/maybe s/Str)
-                                    :ks/search->result {s/Str {:search-term s/Str
+   :app/search {:ks/dashboard {:ks/current-search Search
+                               :ks/search->result {Search {:search Search
+                                                           :items [ListDisplayItem]
+                                                           :paging {:total s/Num
+                                                                    :count s/Num
+                                                                    :index s/Num}}}}
+                :ks/datapack-files {:ks/current-search Search
+                                    :ks/search->result {s/Str {:search Search
                                                                :items [ListDisplayItem]
                                                                :paging {:total s/Num
                                                                         :count s/Num

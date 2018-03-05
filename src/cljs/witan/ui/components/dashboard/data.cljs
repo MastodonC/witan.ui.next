@@ -10,7 +10,7 @@
             [witan.ui.data :as data]
             [witan.ui.controller :as controller]
             ;;
-            [witan.ui.controllers.datastore :refer [dash-page-query-param]])
+            [witan.ui.controllers.search :refer [dash-page-query-param]])
   (:require-macros [cljs-log.core :as log]
                    [witan.ui.env :as env :refer [cljs-env]]))
 
@@ -25,13 +25,6 @@
   [selected-id _]
   (route/navigate! :app/datapack-create))
 
-(defn filter-fn
-  [file-type-filter]
-  (case file-type-filter
-    :files (comp (partial = "stored") :kixi.datastore.metadatastore/type)
-    :datapacks (comp (partial = "datapack") :kixi.datastore.metadatastore/bundle-type)
-    (constantly true)))
-
 (defn view
   []
   (let [selected-id (r/atom nil)]
@@ -40,13 +33,16 @@
       (fn [this])
       :reagent-render
       (fn []
-        (let [raw-data (data/get-app-state :app/data-dash)
-              current-page (utils/query-param-int dash-page-query-param 1 999)
-              file-type-filter (:dd/file-type-filter raw-data)
+        (let [current-search (data/get-in-app-state :app/search :ks/dashboard :ks/current-search)
+              current-results (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
+                                   current-search)
+              page-count (inc (.ceil js/Math (/ (get-in current-results [:paging :total])
+                                                (:size current-search))))
+              current-page (inc (.ceil js/Math (/ (:from current-search)
+                                                  (:size current-search))))
               buttons [{:id :datapack :icon icons/datapack :txt :string/create-new-datapack :class "data-upload"}
                        {:id :upload :icon icons/upload :txt :string/upload-new-data :class "data-upload"}]
               modified-fn #(vector :div (time/iso-time-as-moment (get-in % [:kixi.datastore.metadatastore/provenance :kixi.datastore.metadatastore/created])))
-              datasets (when (:items raw-data) (filter (filter-fn file-type-filter) (:items raw-data)))
               selected-id' @selected-id
               navigate-fn #(route/navigate! :app/data {:id (:kixi.datastore.metadatastore/id %)})
               actions-fn (fn [d] (when (= (:kixi.datastore.metadatastore/id d) selected-id')
@@ -63,16 +59,15 @@
                                 :filter-txt :string/data-dash-filter
                                 :filter-fn nil
                                 :buttons buttons
-                                :subtitle (when file-type-filter
-                                            (case file-type-filter
-                                              :files :string/dash-filter--files
-                                              :datapacks :string/dash-filter--datapacks))
+                                :subtitle (when-let [metadata-type (:metadata-type current-search)]
+                                            (case metadata-type
+                                              "stored" :string/dash-filter--files
+                                              "datapack" :string/dash-filter--datapacks))
                                 :on-button-click (partial button-press (str selected-id'))
-                                #_:on-search #_(fn [search-obj]
-                                                 (let [search-term (.. search-obj -target -value)]
-                                                   (log/debug "Search: " search-term)
-                                                   (controller/raise! :search/dashboard
-                                                                      {:search-term search-term})))})
+                                :on-search (fn [search-term]
+                                             (log/debug "Search: " search-term)
+                                             (controller/raise! :search/dashboard
+                                                                {:search-term search-term}))})
            [:div.content
             (shared/table {:headers [{:content-fn name-fn
                                       :title (get-string :string/forecast-name)
@@ -81,27 +76,21 @@
                                       :title (get-string :string/file-uploader)
                                       :weight 0.2}
                                      {:content-fn modified-fn
-                                      :title (get-string (if (= file-type-filter :datapacks)
+                                      :title (get-string (if (= (:metadata-type current-search) "datapack")
                                                            :string/created-at
                                                            :string/file-uploaded-at))
                                       :weight 0.2}
                                      {:content-fn actions-fn
                                       :title ""
                                       :weight 0.15}]
-                           :content datasets
+                           :content (:items current-results)
                            :selected?-fn #(= (:kixi.datastore.metadatastore/id %) selected-id')
                            :on-select #(reset! selected-id (:kixi.datastore.metadatastore/id %))
                            :on-double-click navigate-fn})
-            (when datasets
+            (when-not (empty? (:items current-results))
               [:div.flex-center.dash-pagination
-               (if file-type-filter
-                 [:span.clickable-text
-                  {:on-click #(route/navigate! :app/data-dash {})}
-                  (get-string :string/dash-reanable-paging)]
-                 [shared/pagination {:page-blocks
-                                     (range 1 (inc (.ceil js/Math (/ (get-in raw-data [:paging :total])
-                                                                     (data/get-in-app-state :app/datastore :ds/page-size)))))
-                                     :current-page current-page}
-                  (fn [id]
-                    (let [new-page (js/parseInt (subs id 5))]
-                      (route/navigate! :app/data-dash {} {dash-page-query-param new-page})))])])]]))})))
+               [shared/pagination {:page-blocks (range 1 page-count)
+                                   :current-page current-page}
+                (fn [id]
+                  (let [new-page (js/parseInt (subs id 5))]
+                    #_(route/navigate! :app/data-dash {} {dash-page-query-param new-page})))]])]]))})))
