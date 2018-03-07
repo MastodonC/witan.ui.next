@@ -35,7 +35,7 @@
     :data-files {:fnc (partial route/navigate! :app/data-dash {} {:metadata-type "stored"})
                  :tooltip :string/tooltip-data--files
                  :icon icons/file}
-    :data-datapacks {:fnc (partial route/navigate! :app/data-dash {} {:metadata-type "datapack"})
+    :data-datapacks {:fnc (partial route/navigate! :app/data-dash {} {:metadata-type "bundle"})
                      :tooltip :string/tooltip-data--datapacks
                      :icon icons/datapack}
     :rts        {:fnc (partial route/navigate! :app/request-to-share)

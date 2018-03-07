@@ -67,7 +67,7 @@
   [_ {:keys [search-term]}]
   (log/debug "Search: " search-term (dashboard-search))
 
-  (update-dashboard-search-name search-term)
+  (when search-term (update-dashboard-search-name search-term))
   (log/debug "Search2222: " search-term)
   (let [current-search (dashboard-search)]
     (when-not (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
@@ -157,7 +157,7 @@
 
 (defn send-dashboard-query!
   []
-  (handle :dashboard {:search-term ""}))
+  (handle :dashboard {:search-term nil}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; On Route Change
@@ -173,10 +173,10 @@
 (defmethod on-route-change
   :app/data-dash
   [{:keys [args]}]
-  (let [type-filter (keyword (get-in args [:route/query :metadata-type]))]
+  (let [type-filter (get-in args [:route/query :metadata-type])]
     (if type-filter
-      (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search] assoc :metadata-type type-filter)
-      (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search] dissoc :metadata-type))
+      (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] assoc :kixi.datastore.metadatastore.query/type {:equals type-filter})
+      (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] dissoc :kixi.datastore.metadatastore.query/type))
     (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search]
                              assoc
                              :from
