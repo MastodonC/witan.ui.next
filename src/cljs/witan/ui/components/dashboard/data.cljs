@@ -36,6 +36,8 @@
         (let [current-search (data/get-in-app-state :app/search :ks/dashboard :ks/current-search)
               current-results (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
                                    current-search)
+              current-search-value (data/get-in-app-state :app/search :ks/dashboard
+                                                          :ks/current-search :query :kixi.datastore.metadatastore.query/name :match)
               page-count (inc (.ceil js/Math (/ (get-in current-results [:paging :total])
                                                 (:size current-search))))
               current-page (inc (.ceil js/Math (/ (:from current-search)
@@ -67,7 +69,8 @@
                                 :on-search (fn [search-term]
                                              (log/debug "Search: " search-term)
                                              (controller/raise! :search/dashboard
-                                                                {:search-term search-term}))})
+                                                                {:search-term search-term}))
+                                :current-search-value current-search-value})
            [:div.content
             (shared/table {:headers [{:content-fn name-fn
                                       :title (get-string :string/forecast-name)

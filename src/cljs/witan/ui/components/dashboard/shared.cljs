@@ -8,13 +8,13 @@
                    [devcards.core :as dc :refer [defcard]]))
 
 (defn header
-  [{:keys [title subtitle buttons on-button-click on-search]}]
+  [{:keys [title subtitle buttons on-button-click on-search current-search-value]}]
   [:div.shared-heading
    [:h1 (get-string title)]
    (when subtitle
      [:span (get-string subtitle)])
    (when on-search
-     (shared/search-filter "Search" on-search))
+     (shared/search-filter "Search" on-search {:current-search-value current-search-value}))
    [:div.dash-buttons
     (for [button buttons]
       (shared/button button on-button-click))]])
