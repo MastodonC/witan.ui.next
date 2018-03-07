@@ -130,7 +130,6 @@
                     :workspace/running? false
                     :workspace/pending? true}
     :app/workspace-dash {:wd/workspaces nil}
-    :app/data-dash {:dd/current-page 1}
     :app/create-data {:cd/pending? false}
     :app/create-datapack {:cdp/pending? false}
     :app/rts-dash {}
@@ -152,8 +151,6 @@
                     :ds/file-metadata-editing nil
                     :ds/file-metadata-editing-command nil
                     :ds/file-properties {}
-                    :ds/page-size 100
-                    :ds/query-tries 0
                     :ds/data-view-subview-idx 0}
     :app/activities {:activities/log []
                      :activities/pending {}}
