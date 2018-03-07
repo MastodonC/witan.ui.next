@@ -93,4 +93,4 @@
                                    :current-page current-page}
                 (fn [id]
                   (let [new-page (js/parseInt (subs id 5))]
-                    #_(route/navigate! :app/data-dash {} {dash-page-query-param new-page})))]])]]))})))
+                    (route/navigate! :app/data-dash {} {dash-page-query-param new-page})))]])]]))})))

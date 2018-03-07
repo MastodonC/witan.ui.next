@@ -173,15 +173,16 @@
 (defmethod on-route-change
   :app/data-dash
   [{:keys [args]}]
-  (let [type-filter (get-in args [:route/query :metadata-type])]
+  (let [type-filter (get-in args [:route/query :metadata-type])
+        requested-page (js/parseInt (or (get-in args [:route/query dash-page-query-param]) "1"))]
     (if type-filter
       (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] assoc :kixi.datastore.metadatastore.query/type {:equals type-filter})
       (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] dissoc :kixi.datastore.metadatastore.query/type))
     (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search]
                              assoc
                              :from
-                             (* (js/parseInt (or (get-in args [:route/query dash-page-query-param]) "0"))
-                                (data/get-in-app-state :app/search :ks/current-search :ks/dashboard :size))))
+                             (* (dec requested-page)
+                                (data/get-in-app-state :app/search :ks/dashboard :ks/current-search :size))))
   (send-dashboard-query!)
   (set-title! (get-string :string/title-data-dashboard)))
 
