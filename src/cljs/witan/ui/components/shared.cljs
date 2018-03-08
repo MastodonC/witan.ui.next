@@ -139,16 +139,6 @@
                            (on-change new-value))}
      txt]]])
 
-(defn dropdown-box
-  [{:keys [options->fn]}]
-  [:div.shared-dropdown-box
-   [:input {:type "checkbox"
-            :id id
-            :checked checked
-            :on-change #(let [new-value (.-checked (.-target %))]
-                          (on-change new-value))}
-    txt]])
-
 (defn inline-group
   [{:keys [kixi.group/name kixi.group/type kixi.group/id]}]
   (let [you? (contains? (set (data/get-in-app-state :app/user :kixi.user/groups)) id)]

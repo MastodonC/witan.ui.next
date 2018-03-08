@@ -62,12 +62,29 @@
 (defmulti handle
   (fn [event args] event))
 
+(defn update-metadata-filter
+  [selected-metadata-type]
+  (data/swap-app-state-in! [:app/search :ks/dashboard
+                            :ks/current-search :query]
+                           (fn [q]
+                             (case selected-metadata-type
+                               "Everything" (dissoc q
+                                                    :kixi.datastore.metadatastore.query/type)
+                               "Files" (assoc q
+                                              :kixi.datastore.metadatastore.query/type
+                                              {:equals "stored"})
+                               "Datapacks" (assoc q
+                                                  :kixi.datastore.metadatastore.query/type
+                                                  {:equals "bundle"})))))
+
 (defmethod handle
   :dashboard
-  [_ {:keys [search-term]}]
+  [_ {:keys [search-term metadata-filter]}]
   (log/debug "Search: " search-term (dashboard-search))
   (when search-term
     (update-dashboard-search-name search-term))
+  (when metadata-filter
+    (update-metadata-filter metadata-filter))
   (let [current-search (dashboard-search)]
     (when-not (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
                    current-search)
@@ -156,7 +173,7 @@
 
 (defn send-dashboard-query!
   []
-  (handle :dashboard {:search-term nil}))
+  (handle :dashboard {}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; On Route Change
@@ -172,7 +189,7 @@
 (defmethod on-route-change
   :app/data-dash
   [{:keys [args]}]
-  (let [type-filter (get-in args [:route/query :metadata-type])
+  (let [type-filter (get-in args [:route/query :metadata-filter])
         requested-page (js/parseInt (or (get-in args [:route/query dash-page-query-param]) "1"))]
     (if type-filter
       (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] assoc :kixi.datastore.metadatastore.query/type {:equals type-filter})

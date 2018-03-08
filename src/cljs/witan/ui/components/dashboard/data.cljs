@@ -25,20 +25,9 @@
   [selected-id _]
   (route/navigate! :app/datapack-create))
 
-(defn adjust-metadata-type-filter
-  [selected-metadata-type]
-  (data/swap-app-state-in! [:app/search :ks/dashboard
-                            :ks/current-search :query]
-                           (fn [q]
-                             (case selected-metadata-type
-                               "Everything" (dissoc q
-                                                    :kixi.datastore.metadatastore.query/type)
-                               "Files" (assoc q
-                                              :kixi.datastore.metadatastore.query/type
-                                              {:equals "stored"})
-                               "Datapacks" (assoc q
-                                                  :kixi.datastore.metadatastore.query/type
-                                                  {:equals "bundle"})))))
+(def metadata-display-filter->internal
+  {"Files" "stored"
+   "Datapacks" "bundle"})
 
 (defn current-metadata-type-filter
   []
@@ -62,13 +51,16 @@
       (shared/search-filter (get-string :string/search) on-search {:current-search-value current-search-value})]
      [:div.flex.search-dropdown
       (icons/filter-list :small)
+      (log/debug "CURRENT: " (current-metadata-type-filter))
       [:select {:id  "metadata-filter"
                 :type "text"
                 :value (current-metadata-type-filter)
                 :placeholder nil
                 :on-change #(let [selected (.. % -target -value)]
-                              (adjust-metadata-type-filter selected)
-                              (controller/raise! :search/dashboard {}))}
+                              (route/swap-query-string! (fn [q] (assoc q "metadata-filter"
+                                                                       (get metadata-display-filter->internal
+                                                                            selected))))
+                              (controller/raise! :search/dashboard {:metadata-filter selected}))}
        (for [metadata-filter ["Everything" "Files" "Datapacks"]]
          [:option {:key metadata-filter :value metadata-filter} metadata-filter])]]]))
 
