@@ -25,6 +25,53 @@
   [selected-id _]
   (route/navigate! :app/datapack-create))
 
+(defn adjust-metadata-type-filter
+  [selected-metadata-type]
+  (data/swap-app-state-in! [:app/search :ks/dashboard
+                            :ks/current-search :query]
+                           (fn [q]
+                             (case selected-metadata-type
+                               "Everything" (dissoc q
+                                                    :kixi.datastore.metadatastore.query/type)
+                               "Files" (assoc q
+                                              :kixi.datastore.metadatastore.query/type
+                                              {:equals "stored"})
+                               "Datapacks" (assoc q
+                                                  :kixi.datastore.metadatastore.query/type
+                                                  {:equals "bundle"})))))
+
+(defn current-metadata-type-filter
+  []
+  (case (data/get-in-app-state :app/search :ks/dashboard
+                               :ks/current-search :query
+                               :kixi.datastore.metadatastore.query/type :equals)
+    "stored" "Files"
+    "bundle" "Datapacks"
+    "Everything"))
+
+(defn search-bar
+  [{:keys [on-search]}]
+  (let [current-search-value (data/get-in-app-state :app/search :ks/dashboard
+                                                    :ks/current-search :query
+                                                    :kixi.datastore.metadatastore.query/name :match)
+        type-filter (data/get-in-app-state :app/search :ks/dashboard
+                                           :ks/current-search :query
+                                           :kixi.datastore.metadatastore.query/type :equals)]
+    [:div.search-bar.flex-vcenter
+     [:div.flex.search-input
+      (shared/search-filter (get-string :string/search) on-search {:current-search-value current-search-value})]
+     [:div.flex.search-dropdown
+      (icons/filter-list :small)
+      [:select {:id  "metadata-filter"
+                :type "text"
+                :value (current-metadata-type-filter)
+                :placeholder nil
+                :on-change #(let [selected (.. % -target -value)]
+                              (adjust-metadata-type-filter selected)
+                              (controller/raise! :search/dashboard {}))}
+       (for [metadata-filter ["Everything" "Files" "Datapacks"]]
+         [:option {:key metadata-filter :value metadata-filter} metadata-filter])]]]))
+
 (defn view
   []
   (let [selected-id (r/atom nil)]
@@ -36,8 +83,6 @@
         (let [current-search (data/get-in-app-state :app/search :ks/dashboard :ks/current-search)
               current-results (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
                                    current-search)
-              current-search-value (data/get-in-app-state :app/search :ks/dashboard
-                                                          :ks/current-search :query :kixi.datastore.metadatastore.query/name :match)
               page-count (inc (.ceil js/Math (/ (get-in current-results [:paging :total])
                                                 (:size current-search))))
               current-page (inc (.ceil js/Math (/ (:from current-search)
@@ -65,12 +110,12 @@
                                             (case metadata-type
                                               "stored" :string/dash-filter--files
                                               "datapack" :string/dash-filter--datapacks))
-                                :on-button-click (partial button-press (str selected-id'))
-                                :on-search (fn [search-term]
-                                             (log/debug "Search: " search-term)
-                                             (controller/raise! :search/dashboard
-                                                                {:search-term search-term}))
-                                :current-search-value current-search-value})
+                                :on-button-click (partial button-press (str selected-id'))})
+           [:div.search-bar-container
+            (search-bar {:on-search (fn [search-term]
+                                      (log/debug "Search: " search-term)
+                                      (controller/raise! :search/dashboard
+                                                         {:search-term search-term}))})]
            [:div.content
             (shared/table {:headers [{:content-fn name-fn
                                       :title (get-string :string/forecast-name)

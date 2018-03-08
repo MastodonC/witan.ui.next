@@ -132,7 +132,8 @@
                    :ds/file-metadata-editing-command s/Any ;; TODO: metadata schema + updates
                    :ds/file-properties FilePropertiesSchema
                    :ds/data-view-subview-idx s/Num
-                   (s/optional-key :ds/error) s/Keyword}
+                   (s/optional-key :ds/error) s/Keyword
+                   (s/optional-key :ds/query-tries) s/Num}
    :app/create-datapack {:cdp/pending? s/Bool
                          (s/optional-key :cdp/pending-datapack) s/Any
                          (s/optional-key :cdp/error) s/Keyword}
