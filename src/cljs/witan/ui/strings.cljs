@@ -103,6 +103,7 @@
                                              "yet. Use the button above to get started!"]
    :string/create-rts-subtitle              "Send a request, to a user or organisation, for data of a specific type"
    :string/create-rts-user                  "Recipient Users/Groups"
+   :string/search                           "Search"
    :string/create-rts-user-ph               "Search for the users and/or organisations you'd like to send the request to."
    :string/search-results                   "Search Results"
    :string/create-rts-will-be-sent-to       "This request will be sent to:"

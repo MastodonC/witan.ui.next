@@ -14,7 +14,7 @@
    (when subtitle
      [:span (get-string subtitle)])
    (when on-search
-     (shared/search-filter "Search" on-search {:current-search-value current-search-value}))
+     (shared/search-filter (get-string :string/search) on-search {:current-search-value current-search-value}))
    [:div.dash-buttons
     (for [button buttons]
       (shared/button button on-button-click))]])

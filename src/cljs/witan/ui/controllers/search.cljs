@@ -66,9 +66,8 @@
   :dashboard
   [_ {:keys [search-term]}]
   (log/debug "Search: " search-term (dashboard-search))
-
-  (when search-term (update-dashboard-search-name search-term))
-  (log/debug "Search2222: " search-term)
+  (when search-term
+    (update-dashboard-search-name search-term))
   (let [current-search (dashboard-search)]
     (when-not (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
                    current-search)
