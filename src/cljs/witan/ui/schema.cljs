@@ -93,7 +93,7 @@
                     (s/optional-key :workspace/current-viz) {:result/location s/Str}
                     (s/optional-key :workspace/model-list) [{s/Keyword s/Any}]}
    :app/workspace-dash {:wd/workspaces (s/maybe [s/Any])}
-   :app/search {:ks/dashboard {:ks/current-search Search
+   :app/search {:ks/dashboard {(s/optional-key :ks/current-search) Search
                                :ks/search->result {Search {:search Search
                                                            :items [ListDisplayItem]
                                                            :paging {:total s/Num

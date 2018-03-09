@@ -48,47 +48,58 @@
                            assoc
                            :from from))
 
-(defn update-dashboard-search-name
-  [search-term]
-  (data/swap-app-state-in! [:app/search :ks/dashboard
-                            :ks/current-search :query :kixi.datastore.metadatastore.query/name]
-                           assoc
-                           :match search-term))
-
-(defn dashboard-search
-  []
-  (data/get-in-app-state :app/search :ks/dashboard :ks/current-search))
-
 (defmulti handle
   (fn [event args] event))
 
-(defn update-metadata-filter
-  [selected-metadata-type]
-  (data/swap-app-state-in! [:app/search :ks/dashboard
-                            :ks/current-search :query]
-                           (fn [q]
-                             (case selected-metadata-type
-                               "Everything" (dissoc q
-                                                    :kixi.datastore.metadatastore.query/type)
-                               "Files" (assoc q
-                                              :kixi.datastore.metadatastore.query/type
-                                              {:equals "stored"})
-                               "Datapacks" (assoc q
-                                                  :kixi.datastore.metadatastore.query/type
-                                                  {:equals "bundle"})))))
+(def metadata-filter->metadata-type
+  {"Files" "stored"
+   "Datapacks" "bundle"})
+
+(def dashboard-list-fields
+  [:kixi.datastore.metadatastore/name
+   :kixi.datastore.metadatastore/id
+   [:kixi.datastore.metadatastore/provenance
+    :kixi.datastore.metadatastore/created]
+   [:kixi.datastore.metadatastore/provenance
+    :kixi.user/id]
+   :kixi.datastore.metadatastore/type
+   :kixi.datastore.metadatastore/bundle-type
+   :kixi.datastore.metadatastore/file-type])
+
+(defn query-params->search-query
+  [{:keys [search-term
+           metadata-filter
+           page
+           size]
+    :as query-params
+    :or {page 1
+         size 50}}]
+  (let [query (merge
+               (when search-term
+                 {:kixi.datastore.metadatastore.query/name {:match search-term}})
+               (when-let [metadata-filter-type (get metadata-filter->metadata-type metadata-filter)]
+                 {:kixi.datastore.metadatastore.query/type {:equals metadata-filter-type}}))]
+    (merge (when query
+             {:query query})
+           {:from (* (dec page)
+                     size)
+            :size size
+            :fields dashboard-list-fields
+            :sort-by [{:kixi.datastore.metadatastore/provenance
+                       {:kixi.datastore.metadatastore/created :desc}}]})))
 
 (defmethod handle
   :dashboard
-  [_ {:keys [search-term metadata-filter]}]
-  (log/debug "Search: " search-term (dashboard-search))
-  (when search-term
-    (update-dashboard-search-name search-term))
-  (when metadata-filter
-    (update-metadata-filter metadata-filter))
-  (let [current-search (dashboard-search)]
+  [_ query-params]
+  (log/debug "Search: " query-params)
+  (let [new-search (query-params->search-query query-params)]
+    (data/swap-app-state-in! [:app/search :ks/dashboard]
+                             assoc
+                             :ks/current-search
+                             new-search)
     (when-not (get (data/get-in-app-state :app/search :ks/dashboard :ks/search->result)
-                   current-search)
-      (data/query {:search/dashboard [[current-search]]}
+                   new-search)
+      (data/query {:search/dashboard [[new-search]]}
                   on-query-response))))
 
 
@@ -171,10 +182,6 @@
                            (:count paging))
   (set-expand-lock false))
 
-(defn send-dashboard-query!
-  []
-  (handle :dashboard {}))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; On Route Change
 
@@ -184,23 +191,13 @@
 (defmethod on-route-change
   :default [_])
 
-(def dash-page-query-param :page)
-
 (defmethod on-route-change
   :app/data-dash
   [{:keys [args]}]
-  (let [type-filter (get-in args [:route/query :metadata-filter])
-        requested-page (js/parseInt (or (get-in args [:route/query dash-page-query-param]) "1"))]
-    (if type-filter
-      (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] assoc :kixi.datastore.metadatastore.query/type {:equals type-filter})
-      (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search :query] dissoc :kixi.datastore.metadatastore.query/type))
-    (data/swap-app-state-in! [:app/search :ks/dashboard :ks/current-search]
-                             assoc
-                             :from
-                             (* (dec requested-page)
-                                (data/get-in-app-state :app/search :ks/dashboard :ks/current-search :size))))
-  (send-dashboard-query!)
-  (set-title! (get-string :string/title-data-dashboard)))
+  (let [query-params (:route/query args)]
+    (log/debug "ROUTE CHANGE: " query-params)
+    (handle :dashboard query-params)
+    (set-title! (get-string :string/title-data-dashboard))))
 
 (defonce subscriptions
   (do (data/subscribe-topic :data/route-changed on-route-change)))

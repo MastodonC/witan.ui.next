@@ -8,9 +8,7 @@
             [witan.ui.route   :as route]
             [witan.ui.strings :refer [get-string]]
             [witan.ui.data :as data]
-            [witan.ui.controller :as controller]
-            ;;
-            [witan.ui.controllers.search :refer [dash-page-query-param]])
+            [witan.ui.controller :as controller])
   (:require-macros [cljs-log.core :as log]
                    [witan.ui.env :as env :refer [cljs-env]]))
 
@@ -25,42 +23,23 @@
   [selected-id _]
   (route/navigate! :app/datapack-create))
 
-(def metadata-display-filter->internal
-  {"Files" "stored"
-   "Datapacks" "bundle"})
-
-(defn current-metadata-type-filter
-  []
-  (case (data/get-in-app-state :app/search :ks/dashboard
-                               :ks/current-search :query
-                               :kixi.datastore.metadatastore.query/type :equals)
-    "stored" "Files"
-    "bundle" "Datapacks"
-    "Everything"))
-
 (defn search-bar
   [{:keys [on-search]}]
-  (let [current-search-value (data/get-in-app-state :app/search :ks/dashboard
-                                                    :ks/current-search :query
-                                                    :kixi.datastore.metadatastore.query/name :match)
-        type-filter (data/get-in-app-state :app/search :ks/dashboard
-                                           :ks/current-search :query
-                                           :kixi.datastore.metadatastore.query/type :equals)]
+  (let [current-search-value (route/get-query-param :search-term)
+        current-metadata-filter (or (route/get-query-param :metadata-filter)
+                                    "Everything")]
     [:div.search-bar.flex-vcenter
      [:div.flex.search-input
       (shared/search-filter (get-string :string/search) on-search {:current-search-value current-search-value})]
      [:div.flex.search-dropdown
       (icons/filter-list :small)
-      (log/debug "CURRENT: " (current-metadata-type-filter))
       [:select {:id  "metadata-filter"
                 :type "text"
-                :value (current-metadata-type-filter)
+                :value current-metadata-filter
                 :placeholder nil
                 :on-change #(let [selected (.. % -target -value)]
-                              (route/swap-query-string! (fn [q] (assoc q "metadata-filter"
-                                                                       (get metadata-display-filter->internal
-                                                                            selected))))
-                              (controller/raise! :search/dashboard {:metadata-filter selected}))}
+                              (route/assoc-query-param-drop-page! :metadata-filter selected)
+                              (controller/raise! :search/dashboard (route/get-query-map)))}
        (for [metadata-filter ["Everything" "Files" "Datapacks"]]
          [:option {:key metadata-filter :value metadata-filter} metadata-filter])]]]))
 
@@ -106,8 +85,8 @@
            [:div.search-bar-container
             (search-bar {:on-search (fn [search-term]
                                       (log/debug "Search: " search-term)
-                                      (controller/raise! :search/dashboard
-                                                         {:search-term search-term}))})]
+                                      (route/assoc-query-param-drop-page! :search-term search-term)
+                                      (controller/raise! :search/dashboard (route/get-query-map)))})]
            [:div.content
             (shared/table {:headers [{:content-fn name-fn
                                       :title (get-string :string/forecast-name)
@@ -133,4 +112,5 @@
                                    :current-page current-page}
                 (fn [id]
                   (let [new-page (js/parseInt (subs id 5))]
-                    (route/navigate! :app/data-dash {} {dash-page-query-param new-page})))]])]]))})))
+                    (route/navigate! :app/data-dash {} (assoc (route/get-query-map)
+                                                              :page new-page))))]])]]))})))
