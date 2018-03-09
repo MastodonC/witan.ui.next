@@ -85,7 +85,9 @@
            [:div.search-bar-container
             (search-bar {:on-search (fn [search-term]
                                       (log/debug "Search: " search-term)
-                                      (route/assoc-query-param-drop-page! :search-term search-term)
+                                      (if-not (empty? search-term)
+                                        (route/assoc-query-param-drop-page! :search-term search-term)
+                                        (route/dissoc-query-params :search-term :page))
                                       (controller/raise! :search/dashboard (route/get-query-map)))})]
            [:div.content
             (shared/table {:headers [{:content-fn name-fn

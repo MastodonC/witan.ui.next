@@ -107,9 +107,15 @@
 
 (defn assoc-query-param-drop-page!
   [k v]
-  (swap-query-string! (fn [q] (-> q
-                                  (assoc k v)
-                                  (dissoc :page)))))
+  (swap-query-string! (fn [q]
+                        (-> q
+                            (assoc k v)
+                            (dissoc :page)))))
+
+(defn dissoc-query-params
+  [& ks]
+  (swap-query-string! (fn [q]
+                        (apply dissoc q ks))))
 
 (defn get-query-map
   []

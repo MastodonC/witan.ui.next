@@ -73,7 +73,7 @@
            size]
     :as query-params
     :or {page 1
-         size 50}}]
+         size "50"}}]
   (let [query (merge
                (when search-term
                  {:kixi.datastore.metadatastore.query/name {:match search-term}})
@@ -83,7 +83,7 @@
              {:query query})
            {:from (* (dec page)
                      size)
-            :size size
+            :size (js/parseInt size)
             :fields dashboard-list-fields
             :sort-by [{:kixi.datastore.metadatastore/provenance
                        {:kixi.datastore.metadatastore/created :desc}}]})))
@@ -195,7 +195,6 @@
   :app/data-dash
   [{:keys [args]}]
   (let [query-params (:route/query args)]
-    (log/debug "ROUTE CHANGE: " query-params)
     (handle :dashboard query-params)
     (set-title! (get-string :string/title-data-dashboard))))
 
