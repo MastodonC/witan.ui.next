@@ -52,8 +52,8 @@
   (fn [event args] event))
 
 (def metadata-filter->metadata-type
-  {"Files" "stored"
-   "Datapacks" "bundle"})
+  {"files" "stored"
+   "datapacks" "bundle"})
 
 (def dashboard-list-fields
   [:kixi.datastore.metadatastore/name

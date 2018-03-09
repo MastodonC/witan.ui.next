@@ -27,10 +27,12 @@
   [{:keys [on-search]}]
   (let [current-search-value (route/get-query-param :search-term)
         current-metadata-filter (or (route/get-query-param :metadata-filter)
-                                    "Everything")]
+                                    "everything")]
     [:div.search-bar.flex-vcenter
      [:div.flex.search-input
-      (shared/search-filter (get-string :string/search) on-search {:current-search-value current-search-value})]
+      (shared/search-filter (get-string :string/search)
+                            on-search
+                            {:current-search-value current-search-value})]
      [:div.flex.search-dropdown
       (icons/filter-list :small)
       [:select {:id  "metadata-filter"
@@ -40,8 +42,8 @@
                 :on-change #(let [selected (.. % -target -value)]
                               (route/assoc-query-param-drop-page! :metadata-filter selected)
                               (controller/raise! :search/dashboard (route/get-query-map)))}
-       (for [metadata-filter ["Everything" "Files" "Datapacks"]]
-         [:option {:key metadata-filter :value metadata-filter} metadata-filter])]]]))
+       (for [[k txt] (get-string :string/search-metadata-filter)]
+         [:option {:key k :value (name k)} txt])]]]))
 
 (defn view
   []
