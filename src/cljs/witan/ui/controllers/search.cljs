@@ -178,6 +178,42 @@
                            :ks/search->result
                            {search resp}))
 
+(defn reset-file-edit-metadata!
+  ([]
+   (reset-file-edit-metadata! nil))
+  ([md]
+   (data/swap-app-state! :app/datastore assoc :ds/file-metadata-editing md)))
+
+(defn save-file-metadata!
+  [{:keys [kixi.datastore.metadatastore/id] :as payload}]
+  (when id
+    (log/debug "Saving file metadata..." id)
+    (data/swap-app-state! :app/datastore assoc-in [:ds/file-metadata id] payload)
+    (when (= id (data/get-in-app-state :app/datastore :ds/file-metadata-editing :kixi.datastore.metadatastore/id))
+      (reset-file-edit-metadata! payload))))
+
+(defmethod on-query-response
+  :search/metadata-by-id
+  [[_ data]]
+  (if (:error data)
+    (let [id (first (get-in data [:original :params]))
+          tries (data/get-in-app-state :app/datastore :ds/query-tries)]
+      (if (< tries 3)
+        (js/setTimeout
+         #(do
+            (data/swap-app-state! :app/datastore update :ds/query-tries inc)
+            (send-single-file-item-query! id))
+         1000)
+        (do
+          (log/warn "File" id "is not accessible.")
+          (data/swap-app-state! :app/datastore assoc :ds/error :string/file-inaccessible)
+          (data/swap-app-state! :app/datastore assoc :ds/query-tries 0))))
+    (do
+      (log/debug "Metadata-by-id:" data)
+      (data/swap-app-state! :app/datastore assoc :ds/query-tries 0)
+      (save-file-metadata! data)
+      (set-title! (:kixi.datastore.metadatastore/name data)))))
+
 (defn datapacks-cache-search
   [search]
   (dissoc search :from))
@@ -219,6 +255,37 @@
     (data/swap-app-state-in! [:app/search :ks/dashboard] assoc :ks/search->result {})
     (handle :dashboard query-params)
     (set-title! (get-string :string/title-data-dashboard))))
+
+(def subview-query-param :d)
+
+(defn send-single-file-item-query!
+  [id]
+  (data/query {:search/metadata-by-id [[id]]}
+              on-query-response))
+
+(defn reset-properties!
+  [id]
+  (when id
+    (data/swap-app-state! :app/datastore update :ds/file-properties dissoc id)))
+
+(defn select-current!
+  [id]
+  (when id
+    (data/swap-app-state! :app/datastore assoc :ds/current id)))
+
+(defmethod on-route-change
+  :app/data
+  [{:keys [args]}]
+  (data/swap-app-state! :app/datastore dissoc :ds/error)
+  (data/swap-app-state! :app/datastore assoc :ds/pending? true)
+  (data/swap-app-state! :app/datastore assoc :ds/confirming-delete? false)
+  (data/swap-app-state! :app/datastore assoc :ds/data-view-subview-idx
+                        (utils/query-param-int subview-query-param 0 10))
+  (let [id (get-in args [:route/params :id])]
+    (send-single-file-item-query! id)
+    (reset-properties! id)
+    (select-current! id)
+    (set-title! (get-string :string/title-data-loading))))
 
 (defonce subscriptions
   (do (data/subscribe-topic :data/route-changed on-route-change)))
